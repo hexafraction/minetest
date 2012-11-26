@@ -554,10 +554,7 @@ public:
 			set(name, "false");
 	}
 
-	void setS32(std::string name, s32 value)
-	{
-		set(name, itos(value));
-	}
+
 
 	void setFloat(std::string name, float value)
 	{
@@ -576,6 +573,16 @@ public:
 		std::ostringstream os;
 		os<<"("<<value.X<<","<<value.Y<<")";
 		set(name, os.str());
+	}
+
+	void setS16(std::string name, s16 value)
+	{
+		set(name, itos(value));
+	}
+
+	void setS32(std::string name, s32 value)
+	{
+		set(name, itos(value));
 	}
 
 	void setU64(std::string name, u64 value)
