@@ -64,7 +64,7 @@ Player::Player(IGameDef *gamedef):
 	movement_acceleration_fast = 10 * BS;
 	movement_speed_walk = 4 * BS;
 	movement_speed_crouch = 1.35 * BS;
-	movement_speed_fast = 20 * BS;
+	movement_speed_fast = 8 * BS;
 	movement_speed_climb = 2 * BS;
 	movement_speed_jump = 6.5 * BS;
 	movement_liquid_fluidity = 1 * BS;
