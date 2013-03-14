@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2011 celeron55, Perttu Ahola <celeron55@gmail.com>
+Minetest
+Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -535,7 +535,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		{
 			// Tab or Shift-Tab pressed
 			// Nick completion
-			core::list<std::wstring> names = m_client->getConnectedPlayerNames();
+			std::list<std::wstring> names = m_client->getConnectedPlayerNames();
 			bool backwards = event.KeyInput.Shift;
 			m_chat_backend->getPrompt().nickCompletion(names, backwards);
 			return true;

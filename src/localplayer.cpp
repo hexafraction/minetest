@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2010-2012 celeron55, Perttu Ahola <celeron55@gmail.com>
+Minetest
+Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -58,7 +58,7 @@ LocalPlayer::~LocalPlayer()
 }
 
 void LocalPlayer::move(f32 dtime, Map &map, f32 pos_max_d,
-		core::list<CollisionInfo> *collision_info)
+		std::list<CollisionInfo> *collision_info)
 {
 	INodeDefManager *nodemgr = m_gamedef->ndef();
 

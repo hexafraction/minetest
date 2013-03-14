@@ -778,6 +778,9 @@ string:trim()
 minetest.pos_to_string({x=X,y=Y,z=Z}) -> "(X,Y,Z)"
 ^ Convert position to a printable string
 minetest.string_to_pos(string) -> position
+^ Same but in reverse
+minetest.formspec_escape(string) -> string
+^ escapes characters like [, ], and \ that can not be used in formspecs
 
 minetest namespace reference
 -----------------------------
@@ -919,12 +922,17 @@ minetest.get_craft_result(input) -> output, decremented_input
 ^ output.time = number, if unsuccessful: 0
 ^ decremented_input = like input
 minetest.get_craft_recipe(output) -> input
+^ returns last registered recipe for output item (node)
 ^ output is a node or item type such as 'default:torch'
 ^ input.method = 'normal' or 'cooking' or 'fuel'
 ^ input.width = for example 3
 ^ input.items = for example { stack 1, stack 2, stack 3, stack 4,
                               stack 5, stack 6, stack 7, stack 8, stack 9 }
 ^ input.items = nil if no recipe found
+minetest.get_all_craft_recipes(output) -> table or nil
+^ returns table with all registered recipes for output item (node)
+^ returns nil if no recipe was found
+^ table entries have same format as minetest.get_craft_recipe
 minetest.handle_node_drops(pos, drops, digger)
 ^ drops: list of itemstrings
 ^ Handles drops from nodes after digging: Default action is to put them into
@@ -1093,6 +1101,7 @@ treedef={
   thin_branches, - boolean true -> use thin (1 node) branches
   fruit,         - string  fruit node name
   fruit_chance,  - num     chance (0-100) to replace leaves with fruit node
+  seed,          - num     random seed
   }
 
 Key for Special L-System Symbols used in Axioms

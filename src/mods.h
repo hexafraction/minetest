@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2011 celeron55, Perttu Ahola <celeron55@gmail.com>
+Minetest
+Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string>
 #include <map>
 #include <exception>
+#include <list>
 
 class ModError : public std::exception
 {
@@ -67,7 +68,6 @@ struct ModSpec
 		modpack_content()	
 	{}
 };
-
 
 std::map<std::string,ModSpec> getModsInPath(std::string path);
 
@@ -140,6 +140,4 @@ private:
 
 };
 
-
 #endif
-

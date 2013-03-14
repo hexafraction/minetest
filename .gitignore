@@ -4,13 +4,16 @@
 *bak*
 tags
 *.vim
+*.orig
+*.rej
 
 ## Non-static Minetest directories
 /bin/
 /games/*
 !/games/minimal/
 /cache/
-/textures/
+/textures/*
+!/textures/base/
 /sounds/
 /mods/*
 !/mods/minetest/
@@ -40,6 +43,8 @@ src/cguittfont/CMakeFiles/
 src/cguittfont/libcguittfont.a
 src/cguittfont/cmake_install.cmake
 src/cguittfont/Makefile
+src/json/CMakeFiles/
+src/json/libjsoncpp.a
 CMakeCache.txt
 CPackConfig.cmake
 CPackSourceConfig.cmake
