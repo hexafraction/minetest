@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2010-2011 celeron55, Perttu Ahola <celeron55@gmail.com>
+Minetest
+Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -230,9 +230,9 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 			
 			// Neighbor liquid levels (key = relative position)
 			// Includes current node
-			core::map<v3s16, f32> neighbor_levels;
-			core::map<v3s16, content_t> neighbor_contents;
-			core::map<v3s16, u8> neighbor_flags;
+			std::map<v3s16, f32> neighbor_levels;
+			std::map<v3s16, content_t> neighbor_contents;
+			std::map<v3s16, u8> neighbor_flags;
 			const u8 neighborflag_top_is_same_liquid = 0x01;
 			v3s16 neighbor_dirs[9] = {
 				v3s16(0,0,0),
@@ -261,7 +261,7 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 						level = (-0.5+node_liquid_level) * BS;
 					else if(n2.getContent() == c_flowing)
 						level = (-0.5 + ((float)(n2.param2&LIQUID_LEVEL_MASK)
-								+ 0.5) / 8.0 * node_liquid_level) * BS;
+								+ 0.5) / (float)LIQUID_LEVEL_SOURCE * node_liquid_level) * BS;
 
 					// Check node above neighbor.
 					// NOTE: This doesn't get executed if neighbor
@@ -273,9 +273,9 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 						flags |= neighborflag_top_is_same_liquid;
 				}
 				
-				neighbor_levels.insert(neighbor_dirs[i], level);
-				neighbor_contents.insert(neighbor_dirs[i], content);
-				neighbor_flags.insert(neighbor_dirs[i], flags);
+				neighbor_levels[neighbor_dirs[i]] = level;
+				neighbor_contents[neighbor_dirs[i]] = content;
+				neighbor_flags[neighbor_dirs[i]] = flags;
 			}
 
 			// Corner heights (average between four liquids)
@@ -324,7 +324,7 @@ void mapblock_mesh_generate_special(MeshMakeData *data,
 					}
 				}
 				if(air_count >= 2)
-					cornerlevel = -0.5*BS;
+					cornerlevel = -0.5*BS+0.1;
 				else if(valid_count > 0)
 					cornerlevel /= valid_count;
 				corner_levels[i] = cornerlevel;

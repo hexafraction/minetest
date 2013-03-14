@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2010-2012 celeron55, Perttu Ahola <celeron55@gmail.com>,
+Minetest
+Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>,
 			  2012-2013 RealBadAngel, Maciej Kasatkin <mk@realbadangel.pl>
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <stack>
 #include "util/numeric.h"
 #include "util/mathconstants.h"
-#include "noise.h"
 #include "map.h"
 #include "environment.h"
 #include "nodedef.h"
@@ -31,13 +30,14 @@ namespace treegen
 {
 
 void make_tree(ManualMapVoxelManipulator &vmanip, v3s16 p0,
-		bool is_apple_tree, INodeDefManager *ndef)
+		bool is_apple_tree, INodeDefManager *ndef, int seed)
 {
 	MapNode treenode(ndef->getId("mapgen_tree"));
 	MapNode leavesnode(ndef->getId("mapgen_leaves"));
 	MapNode applenode(ndef->getId("mapgen_apple"));
 
-	s16 trunk_h = myrand_range(4, 5);
+	PseudoRandom pr(seed);
+	s16 trunk_h = pr.range(4, 5);
 	v3s16 p1 = p0;
 	for(s16 ii=0; ii<trunk_h; ii++)
 	{
@@ -73,9 +73,9 @@ void make_tree(ManualMapVoxelManipulator &vmanip, v3s16 p0,
 		s16 d = 1;
 
 		v3s16 p(
-			myrand_range(leaves_a.MinEdge.X, leaves_a.MaxEdge.X-d),
-			myrand_range(leaves_a.MinEdge.Y, leaves_a.MaxEdge.Y-d),
-			myrand_range(leaves_a.MinEdge.Z, leaves_a.MaxEdge.Z-d)
+			pr.range(leaves_a.MinEdge.X, leaves_a.MaxEdge.X-d),
+			pr.range(leaves_a.MinEdge.Y, leaves_a.MaxEdge.Y-d),
+			pr.range(leaves_a.MinEdge.Z, leaves_a.MaxEdge.Z-d)
 		);
 
 		for(s16 z=0; z<=d; z++)
@@ -101,7 +101,7 @@ void make_tree(ManualMapVoxelManipulator &vmanip, v3s16 p0,
 			continue;
 		u32 i = leaves_a.index(x,y,z);
 		if(leaves_d[i] == 1) {
-			bool is_apple = myrand_range(0,99) < 10;
+			bool is_apple = pr.range(0,99) < 10;
 			if(is_apple_tree && is_apple) {
 				vmanip.m_data[vi] = applenode;
 			} else {
@@ -112,10 +112,10 @@ void make_tree(ManualMapVoxelManipulator &vmanip, v3s16 p0,
 }
 
 // L-System tree LUA spawner
-void spawn_ltree (ServerEnvironment *env, v3s16 p0, INodeDefManager *ndef, TreeDef tree_definition)
+void spawn_ltree(ServerEnvironment *env, v3s16 p0, INodeDefManager *ndef, TreeDef tree_definition)
 {
 	ServerMap *map = &env->getServerMap();
-	core::map<v3s16, MapBlock*> modified_blocks;
+	std::map<v3s16, MapBlock*> modified_blocks;
 	ManualMapVoxelManipulator vmanip(map);
 	v3s16 tree_blockp = getNodeBlockPos(p0);
 	vmanip.initialEmerge(tree_blockp - v3s16(1,1,1), tree_blockp + v3s16(1,3,1));
@@ -123,23 +123,17 @@ void spawn_ltree (ServerEnvironment *env, v3s16 p0, INodeDefManager *ndef, TreeD
 	vmanip.blitBackAll(&modified_blocks);
 
 	// update lighting
-	core::map<v3s16, MapBlock*> lighting_modified_blocks;
-	for(core::map<v3s16, MapBlock*>::Iterator
-		i = modified_blocks.getIterator();
-		i.atEnd() == false; i++)
-	{
-		lighting_modified_blocks.insert(i.getNode()->getKey(), i.getNode()->getValue());
-	}
+	std::map<v3s16, MapBlock*> lighting_modified_blocks;
+	lighting_modified_blocks.insert(modified_blocks.begin(), modified_blocks.end());
 	map->updateLighting(lighting_modified_blocks, modified_blocks);
 	// Send a MEET_OTHER event
 	MapEditEvent event;
 	event.type = MEET_OTHER;
-	for(core::map<v3s16, MapBlock*>::Iterator
-		i = modified_blocks.getIterator();
-		i.atEnd() == false; i++)
+	for(std::map<v3s16, MapBlock*>::iterator
+		i = modified_blocks.begin();
+		i != modified_blocks.end(); ++i)
 	{
-		v3s16 p = i.getNode()->getKey();
-		event.modified_blocks.insert(p, true);
+		event.modified_blocks.insert(i->first);
 	}
 	map->dispatchEvent(&event);
 }
@@ -150,6 +144,7 @@ void make_ltree(ManualMapVoxelManipulator &vmanip, v3s16 p0, INodeDefManager *nd
 {
 	MapNode dirtnode(ndef->getId("mapgen_dirt"));
 
+	PseudoRandom ps(tree_definition.seed+14002);
 	// chance of inserting abcd rules
 	double prop_a = 9;
 	double prop_b = 8;
@@ -159,13 +154,13 @@ void make_ltree(ManualMapVoxelManipulator &vmanip, v3s16 p0, INodeDefManager *nd
 	//randomize tree growth level, minimum=2
 	s16 iterations = tree_definition.iterations;
 	if (tree_definition.iterations_random_level>0)
-		iterations -= myrand_range(0,tree_definition.iterations_random_level);
+		iterations -= ps.range(0,tree_definition.iterations_random_level);
 	if (iterations<2)
 		iterations=2;
 
 	s16 MAX_ANGLE_OFFSET = 5;
 	double angle_in_radians = (double)tree_definition.angle*M_PI/180;
-	double angleOffset_in_radians = (s16)(myrand_range(0,1)%MAX_ANGLE_OFFSET)*M_PI/180;
+	double angleOffset_in_radians = (s16)(ps.range(0,1)%MAX_ANGLE_OFFSET)*M_PI/180;
 
 	//initialize rotation matrix, position and stacks for branches
 	core::matrix4 rotation;
@@ -200,19 +195,19 @@ void make_ltree(ManualMapVoxelManipulator &vmanip, v3s16 p0, INodeDefManager *nd
 				temp+=tree_definition.rules_d;
 				break;
 			case 'a':
-				if (prop_a >= myrand_range(1,10))
+				if (prop_a >= ps.range(1,10))
 					temp+=tree_definition.rules_a;
 				break;
 			case 'b':
-				if (prop_b >= myrand_range(1,10))
+				if (prop_b >= ps.range(1,10))
 					temp+=tree_definition.rules_b;
 				break;
 			case 'c':
-				if (prop_c >= myrand_range(1,10))
+				if (prop_c >= ps.range(1,10))
 					temp+=tree_definition.rules_c;
 				break;
 			case 'd':
-				if (prop_d >= myrand_range(1,10))
+				if (prop_d >= ps.range(1,10))
 					temp+=tree_definition.rules_d;
 				break;
 			default:
@@ -324,10 +319,10 @@ void make_ltree(ManualMapVoxelManipulator &vmanip, v3s16 p0, INodeDefManager *nd
 						for(z=-size; z<=size; z++)
 							if (abs(x) == size && abs(y) == size && abs(z) == size)
 							{
-								tree_leaves_placement(vmanip,v3f(position.X+x+1,position.Y+y,position.Z+z),tree_definition);
-								tree_leaves_placement(vmanip,v3f(position.X+x-1,position.Y+y,position.Z+z),tree_definition);
-								tree_leaves_placement(vmanip,v3f(position.X+x,position.Y+y,position.Z+z+1),tree_definition);
-								tree_leaves_placement(vmanip,v3f(position.X+x,position.Y+y,position.Z+z-1),tree_definition);
+								tree_leaves_placement(vmanip,v3f(position.X+x+1,position.Y+y,position.Z+z),ps.next(), tree_definition);
+								tree_leaves_placement(vmanip,v3f(position.X+x-1,position.Y+y,position.Z+z),ps.next(), tree_definition);
+								tree_leaves_placement(vmanip,v3f(position.X+x,position.Y+y,position.Z+z+1),ps.next(), tree_definition);
+								tree_leaves_placement(vmanip,v3f(position.X+x,position.Y+y,position.Z+z-1),ps.next(), tree_definition);
 							}
 			}
 			dir = v3f(1,0,0);
@@ -335,7 +330,7 @@ void make_ltree(ManualMapVoxelManipulator &vmanip, v3s16 p0, INodeDefManager *nd
 			position+=dir;
 			break;
 		case 'f':
-			tree_single_leaves_placement(vmanip,v3f(position.X,position.Y,position.Z),tree_definition);
+			tree_single_leaves_placement(vmanip,v3f(position.X,position.Y,position.Z),ps.next() ,tree_definition);
 			dir = v3f(1,0,0);
 			dir = transposeMatrix(rotation,dir);
 			position+=dir;
@@ -421,10 +416,10 @@ void tree_trunk_placement(ManualMapVoxelManipulator &vmanip, v3f p0,
 }
 
 void tree_leaves_placement(ManualMapVoxelManipulator &vmanip, v3f p0,
-		TreeDef &tree_definition)
+		PseudoRandom ps ,TreeDef &tree_definition)
 {
 	MapNode leavesnode=tree_definition.leavesnode;
-	if (myrand_range(1,100) > 100-tree_definition.leaves2_chance)
+	if (ps.range(1,100) > 100-tree_definition.leaves2_chance)
 		leavesnode=tree_definition.leaves2node;
 	v3s16 p1 = v3s16(myround(p0.X),myround(p0.Y),myround(p0.Z));
 	if(vmanip.m_area.contains(p1) == false)
@@ -435,20 +430,20 @@ void tree_leaves_placement(ManualMapVoxelManipulator &vmanip, v3f p0,
 		return;	
 	if (tree_definition.fruit_chance>0)
 	{
-		if (myrand_range(1,100) > 100-tree_definition.fruit_chance)
+		if (ps.range(1,100) > 100-tree_definition.fruit_chance)
 			vmanip.m_data[vmanip.m_area.index(p1)] = tree_definition.fruitnode;
 		else
 			vmanip.m_data[vmanip.m_area.index(p1)] = leavesnode;
 	}
-	else if (myrand_range(1,100) > 20)
+	else if (ps.range(1,100) > 20)
 		vmanip.m_data[vmanip.m_area.index(p1)] = leavesnode;
 }
 
 void tree_single_leaves_placement(ManualMapVoxelManipulator &vmanip, v3f p0,
-		TreeDef &tree_definition)
+		PseudoRandom ps, TreeDef &tree_definition)
 {
 	MapNode leavesnode=tree_definition.leavesnode;
-	if (myrand_range(1,100) > 100-tree_definition.leaves2_chance)
+	if (ps.range(1,100) > 100-tree_definition.leaves2_chance)
 		leavesnode=tree_definition.leaves2node;
 	v3s16 p1 = v3s16(myround(p0.X),myround(p0.Y),myround(p0.Z));
 	if(vmanip.m_area.contains(p1) == false)
@@ -512,17 +507,17 @@ v3f transposeMatrix(irr::core::matrix4 M, v3f v)
 	return translated;
 }
 
-#if 0
-static void make_jungletree(VoxelManipulator &vmanip, v3s16 p0,
-		INodeDefManager *ndef)
+void make_jungletree(VoxelManipulator &vmanip, v3s16 p0,
+		INodeDefManager *ndef, int seed)
 {
 	MapNode treenode(ndef->getId("mapgen_jungletree"));
 	MapNode leavesnode(ndef->getId("mapgen_leaves"));
 
+	PseudoRandom pr(seed);
 	for(s16 x=-1; x<=1; x++)
 	for(s16 z=-1; z<=1; z++)
 	{
-		if(myrand_range(0, 2) == 0)
+		if(pr.range(0, 2) == 0)
 			continue;
 		v3s16 p1 = p0 + v3s16(x,0,z);
 		v3s16 p2 = p0 + v3s16(x,-1,z);
@@ -533,7 +528,7 @@ static void make_jungletree(VoxelManipulator &vmanip, v3s16 p0,
 			vmanip.m_data[vmanip.m_area.index(p1)] = treenode;
 	}
 
-	s16 trunk_h = myrand_range(8, 12);
+	s16 trunk_h = pr.range(8, 12);
 	v3s16 p1 = p0;
 	for(s16 ii=0; ii<trunk_h; ii++)
 	{
@@ -568,9 +563,9 @@ static void make_jungletree(VoxelManipulator &vmanip, v3s16 p0,
 		s16 d = 1;
 
 		v3s16 p(
-			myrand_range(leaves_a.MinEdge.X, leaves_a.MaxEdge.X-d),
-			myrand_range(leaves_a.MinEdge.Y, leaves_a.MaxEdge.Y-d),
-			myrand_range(leaves_a.MinEdge.Z, leaves_a.MaxEdge.Z-d)
+			pr.range(leaves_a.MinEdge.X, leaves_a.MaxEdge.X-d),
+			pr.range(leaves_a.MinEdge.Y, leaves_a.MaxEdge.Y-d),
+			pr.range(leaves_a.MinEdge.Z, leaves_a.MaxEdge.Z-d)
 		);
 
 		for(s16 z=0; z<=d; z++)
@@ -599,6 +594,5 @@ static void make_jungletree(VoxelManipulator &vmanip, v3s16 p0,
 			vmanip.m_data[vi] = leavesnode;
 	}
 }
-#endif
 
 }; // namespace treegen

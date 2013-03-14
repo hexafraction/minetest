@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2010-2012 celeron55, Perttu Ahola <celeron55@gmail.com>
+Minetest
+Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -284,6 +284,22 @@ inline std::string wrap_rows(const std::string &from, u32 rowlen)
 		to += from[i];
 	}
 	return to;
+}
+
+/*
+	Removes all \\ from a string that had been escaped (FormSpec strings)
+*/
+inline std::string unescape_string(std::string &s)
+{
+	std::string res;
+	
+	for (size_t i = 0; i <= s.length(); i++) {
+		if (s[i] == '\\')
+			i++;
+		res += s[i];
+	}
+	
+	return res;
 }
 
 std::string translatePassword(std::string playername, std::wstring password);

@@ -1,6 +1,6 @@
 /*
-Minetest-c55
-Copyright (C) 2010-2011 celeron55, Perttu Ahola <celeron55@gmail.com>
+Minetest
+Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -59,9 +59,9 @@ Player::Player(IGameDef *gamedef):
 		"list[current_player;craftpreview;7,1;1,1;]";
 
 	// Initialize movement settings at default values, so movement can work if the server fails to send them
-	movement_acceleration_default = 2 * BS;
-	movement_acceleration_air = 0.5 * BS;
-	movement_acceleration_fast = 8 * BS;
+	movement_acceleration_default = 3 * BS;
+	movement_acceleration_air = 2 * BS;
+	movement_acceleration_fast = 10 * BS;
 	movement_speed_walk = 4 * BS;
 	movement_speed_crouch = 1.35 * BS;
 	movement_speed_fast = 20 * BS;
