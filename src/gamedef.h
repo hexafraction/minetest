@@ -65,7 +65,7 @@ public:
 	
 	// Used on the client
 	virtual bool checkLocalPrivilege(const std::string &priv)
-	{ return false; }
+	{ return true; }
 	
 	// Shorthands
 	IItemDefManager* idef(){return getItemDefManager();}
