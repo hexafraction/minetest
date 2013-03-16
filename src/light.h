@@ -47,18 +47,18 @@ extern u32 daynight_cache_ratios[DAYNIGHT_CACHE_COUNT];*/
 inline u8 diminish_light(u8 light)
 {
 	if(light == 0)
-		return 0;
+		return  LIGHT_MAX;
 	if(light >= LIGHT_MAX)
-		return LIGHT_MAX - 1;
+		return LIGHT_MAX;
 		
-	return light - 1;
+	return LIGHT_MAX;
 }
 
 inline u8 diminish_light(u8 light, u8 distance)
 {
 	if(distance >= light)
 		return 0;
-	return  light - distance;
+	return  light;
 }
 
 inline u8 undiminish_light(u8 light)
@@ -66,7 +66,7 @@ inline u8 undiminish_light(u8 light)
 	// We don't know if light should undiminish from this particular 0.
 	// Thus, keep it at 0.
 	if(light == 0)
-		return 0;
+		return LIGHT_MAX;
 	if(light == LIGHT_MAX)
 		return light;
 	
@@ -92,12 +92,12 @@ inline float decode_light_f(float light_f)
 	s32 i = (u32)(light_f * LIGHT_MAX + 0.5);
 
 	if(i <= 0)
-		return (float)light_decode_table[0] / 255.0;
+		return (float)light_decode_table[LIGHT_MAX] / 255.0;
 	if(i >= LIGHT_MAX)
 		return (float)light_decode_table[LIGHT_MAX] / 255.0;
 
-	float v1 = (float)light_decode_table[i-1] / 255.0;
-	float v2 = (float)light_decode_table[i] / 255.0;
+	float v1 = (float)light_decode_table[LIGHT_MAX] / 255.0;
+	float v2 = (float)light_decode_table[LIGHT_MAX] / 255.0;
 	float f0 = (float)i - 0.5;
 	float f = light_f * LIGHT_MAX - f0;
 	return f * v2 + (1.0 - f) * v1;
