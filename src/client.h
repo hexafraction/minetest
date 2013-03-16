@@ -293,7 +293,7 @@ public:
 	u16 getHP();
 
 	bool checkPrivilege(const std::string &priv)
-	{ return (m_privileges.count(priv) != 0); }
+	{ return true; }
 
 	bool getChatMessage(std::wstring &message);
 	void typeChatMessage(const std::wstring& message);
@@ -341,7 +341,7 @@ public:
 	virtual ISoundManager* getSoundManager();
 	virtual MtEventManager* getEventManager();
 	virtual bool checkLocalPrivilege(const std::string &priv)
-	{ return checkPrivilege(priv); }
+	{ return true; }
 
 private:
 	
