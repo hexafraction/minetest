@@ -1594,6 +1594,8 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 	}
 	else if(command == TOCLIENT_DEATHSCREEN)
 	{
+		if(false)
+		{
 		std::string datastring((char*)&data[2], datasize-2);
 		std::istringstream is(datastring, std::ios_base::binary);
 		
@@ -1607,6 +1609,7 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 		event.deathscreen.camera_point_target_z = camera_point_target.Z;
 		m_client_event_queue.push_back(event);
 		}
+	}
 	else if(command == TOCLIENT_ANNOUNCE_MEDIA)
 	{
 		std::string datastring((char*)&data[2], datasize-2);
