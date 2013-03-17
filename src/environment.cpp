@@ -2409,7 +2409,7 @@ void ClientEnvironment::damageLocalPlayer(u8 damage, bool handle_hp)
 {
 	if(false){
 		
-	}
+	
 	LocalPlayer *lplayer = getLocalPlayer();
 	assert(lplayer);
 	
