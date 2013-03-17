@@ -667,7 +667,7 @@ void Client::step(float dtime)
 			}
 			else if(event.type == CEE_PLAYER_DAMAGE)
 			{
-				if(m_ignore_damage_timer <= 0)
+				if(false)
 				{
 					u8 damage = event.player_damage.amount;
 					
@@ -1547,10 +1547,10 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 		if(hp < oldhp)
 		{
 			// Add to ClientEvent queue
-			ClientEvent event;
-			event.type = CE_PLAYER_DAMAGE;
-			event.player_damage.amount = oldhp - hp;
-			m_client_event_queue.push_back(event);
+			//ClientEvent event;
+			//event.type = CE_PLAYER_DAMAGE;
+			//event.player_damage.amount = oldhp - hp;
+			//m_client_event_queue.push_back(event);
 		}
 	}
 	else if(command == TOCLIENT_MOVE_PLAYER)
@@ -1602,12 +1602,11 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 		
 		ClientEvent event;
 		event.type = CE_DEATHSCREEN;
-		event.deathscreen.set_camera_point_target = set_camera_point_target;
 		event.deathscreen.camera_point_target_x = camera_point_target.X;
 		event.deathscreen.camera_point_target_y = camera_point_target.Y;
 		event.deathscreen.camera_point_target_z = camera_point_target.Z;
 		m_client_event_queue.push_back(event);
-	}
+		}
 	else if(command == TOCLIENT_ANNOUNCE_MEDIA)
 	{
 		std::string datastring((char*)&data[2], datasize-2);
@@ -2119,17 +2118,17 @@ void Client::sendChangePassword(const std::wstring oldpassword,
 
 void Client::sendDamage(u8 damage)
 {
-	DSTACK(__FUNCTION_NAME);
-	std::ostringstream os(std::ios_base::binary);
+	//DSTACK(__FUNCTION_NAME);
+	//std::ostringstream os(std::ios_base::binary);
 
-	writeU16(os, TOSERVER_DAMAGE);
-	writeU8(os, damage);
+	//writeU16(os, TOSERVER_DAMAGE);
+	//writeU8(os, damage);
 
 	// Make data buffer
-	std::string s = os.str();
-	SharedBuffer<u8> data((u8*)s.c_str(), s.size());
+	//std::string s = os.str();
+	//SharedBuffer<u8> data((u8*)s.c_str(), s.size());
 	// Send as reliable
-	Send(0, data, true);
+	//Send(0, data, true);
 }
 
 void Client::sendRespawn()
