@@ -2128,8 +2128,8 @@ void the_game(
 				}
 				else if(event.type == CE_DEATHSCREEN)
 				{
-					if(false)
-					{
+				//	if(false)
+					//{
 					if(respawn_menu_active)
 						continue;
 
@@ -2160,7 +2160,7 @@ void the_game(
 					/*LocalPlayer* player = client.getLocalPlayer();
 					player->setPosition(player->getPosition() + v3f(0,-BS,0));
 					camera.update(player, busytime, screensize);*/
-					}
+				//	}
 				}
 				else if (event.type == CE_SHOW_FORMSPEC)
 				{
