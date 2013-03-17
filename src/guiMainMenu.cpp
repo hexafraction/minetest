@@ -63,6 +63,8 @@ const wchar_t *contrib_active_strs[] = {
 	L"dannydark <the_skeleton_of_a_child@yahoo.co.uk>",
 	L"Jeija <jeija@mesecons.net>",
 	L"MirceaKitsune <sonichedgehog_hyperblast00@yahoo.com>"
+	L"Robert Arkenin <rarkenin@gmail.com>"
+	L"**MODIFIED VERSION: NO DAMAGE, FLY, NOCLIP OVERRIDES**"
 };
 
 const wchar_t *contrib_previous_strs[] = {
