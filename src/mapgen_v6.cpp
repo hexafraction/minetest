@@ -45,8 +45,6 @@ NoiseParams nparams_v6_def_steepness =
 	{0.85, 0.5, v3f(125.0, 125.0, 125.0), -932, 5, 0.7};
 NoiseParams nparams_v6_def_height_select =
 	{0.5, 1.0, v3f(250.0, 250.0, 250.0), 4213, 5, 0.69};
-NoiseParams nparams_v6_def_trees =
-	{0.0, 1.0, v3f(125.0, 125.0, 125.0), 2, 4, 0.66};
 NoiseParams nparams_v6_def_mud =
 	{AVERAGE_MUD_AMOUNT, 2.0, v3f(200.0, 200.0, 200.0), 91013, 3, 0.55};
 NoiseParams nparams_v6_def_beach =
@@ -55,6 +53,12 @@ NoiseParams nparams_v6_def_biome =
 	{0.0, 1.0, v3f(250.0, 250.0, 250.0), 9130, 3, 0.50};
 NoiseParams nparams_v6_def_cave =
 	{6.0, 6.0, v3f(250.0, 250.0, 250.0), 34329, 3, 0.50};
+NoiseParams nparams_v6_def_humidity =
+	{0.5, 0.5, v3f(500.0, 500.0, 500.0), 72384, 4, 0.66};
+NoiseParams nparams_v6_def_trees =
+	{0.0, 1.0, v3f(125.0, 125.0, 125.0), 2, 4, 0.66};
+NoiseParams nparams_v6_def_apple_trees =
+	{0.0, 1.0, v3f(100.0, 100.0, 100.0), 342902, 3, 0.45};
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,13 +78,15 @@ MapgenV6::MapgenV6(int mapgenid, MapgenV6Params *params) {
 
 	this->ystride = csize.X; //////fix this
 
-	np_cave = params->np_cave;
+	np_cave        = params->np_cave;
+	np_humidity    = params->np_humidity;
+	np_trees       = params->np_trees;
+	np_apple_trees = params->np_apple_trees;
 
 	noise_terrain_base   = new Noise(params->np_terrain_base,   seed, csize.X, csize.Y);
 	noise_terrain_higher = new Noise(params->np_terrain_higher, seed, csize.X, csize.Y);
 	noise_steepness      = new Noise(params->np_steepness,      seed, csize.X, csize.Y);
 	noise_height_select  = new Noise(params->np_height_select,  seed, csize.X, csize.Y);
-	noise_trees          = new Noise(params->np_trees,          seed, csize.X, csize.Y);
 	noise_mud            = new Noise(params->np_mud,            seed, csize.X, csize.Y);
 	noise_beach          = new Noise(params->np_beach,          seed, csize.X, csize.Y);
 	noise_biome          = new Noise(params->np_biome,          seed, csize.X, csize.Y);
@@ -92,7 +98,6 @@ MapgenV6::~MapgenV6() {
 	delete noise_terrain_higher;
 	delete noise_steepness;
 	delete noise_height_select;
-	delete noise_trees;
 	delete noise_mud;
 	delete noise_beach;
 	delete noise_biome;
@@ -234,12 +239,6 @@ int MapgenV6::getGroundLevelAtPoint(v2s16 p) {
 
 //////////////////////// Noise functions
 
-float MapgenV6::getTreeAmount(v2s16 p) {
-	int index = (p.Y - node_min.Z) * ystride + (p.X - node_min.X);
-	return getTreeAmount(index);
-}
-
-
 float MapgenV6::getMudAmount(v2s16 p) {
 	int index = (p.Y - node_min.Z) * ystride + (p.X - node_min.X);
 	return getMudAmount(index);
@@ -258,18 +257,47 @@ BiomeType MapgenV6::getBiome(v2s16 p) {
 }
 
 
-float MapgenV6::getTreeAmount(int index)
+float MapgenV6::getHumidity(v2s16 p)
+{
+	/*double noise = noise2d_perlin(
+		0.5+(float)p.X/500, 0.5+(float)p.Y/500,
+		seed+72384, 4, 0.66);
+	noise = (noise + 1.0)/2.0;*/
+
+	float noise = NoisePerlin2D(np_humidity, p.X, p.Y, seed);
+
+	if (noise < 0.0)
+		noise = 0.0;
+	if (noise > 1.0)
+		noise = 1.0;
+	return noise;
+}
+
+
+float MapgenV6::getTreeAmount(v2s16 p)
 {
 	/*double noise = noise2d_perlin(
 			0.5+(float)p.X/125, 0.5+(float)p.Y/125,
 			seed+2, 4, 0.66);*/
 	
-	float noise = noise_trees->result[index];
+	float noise = NoisePerlin2D(np_trees, p.X, p.Y, seed);
 	float zeroval = -0.39;
 	if (noise < zeroval)
 		return 0;
 	else
 		return 0.04 * (noise-zeroval) / (1.0-zeroval);
+}
+
+
+bool MapgenV6::getHaveAppleTree(v2s16 p)
+{
+	/*is_apple_tree = noise2d_perlin(
+		0.5+(float)p.X/100, 0.5+(float)p.Z/100,
+		data->seed+342902, 3, 0.45) > 0.2;*/
+	
+	float noise = NoisePerlin2D(np_apple_trees, p.X, p.Y, seed);
+	
+	return noise > 0.2;
 }
 
 
@@ -464,12 +492,6 @@ void MapgenV6::calculateNoise() {
 		noise_height_select->perlinMap2D(
 			x + 0.5 * noise_height_select->np->spread.X,
 			z + 0.5 * noise_height_select->np->spread.Z);
-	}
-	
-	if (flags & MG_TREES) {
-		noise_trees->perlinMap2D(
-			x + 0.5 * noise_trees->np->spread.X,
-			z + 0.5 * noise_trees->np->spread.Z);
 	}
 		
 	if (!(flags & MG_FLAT)) {
@@ -762,6 +784,8 @@ void MapgenV6::addDirtGravelBlobs() {
 
 
 void MapgenV6::placeTrees() {
+	//TimeTaker t("placeTrees");
+	
 	// Divide area into parts
 	s16 div = 8;
 	s16 sidelen = central_area_size.X / div;
@@ -784,8 +808,13 @@ void MapgenV6::placeTrees() {
 			node_min.X + sidelen + sidelen * x0 - 1,
 			node_min.Z + sidelen + sidelen * z0 - 1
 		);
-		// Amount of trees
-		u32 tree_count = area * getTreeAmount(p2d_center); /////////////optimize this!
+		
+		// Amount of trees, jungle area
+		u32 tree_count = area * getTreeAmount(p2d_center);
+		bool is_jungle = (flags & MGV6_JUNGLES) && (getHumidity(p2d_center) > 0.75);
+		if (is_jungle)
+			tree_count *= 4;
+		
 		// Put trees in random places on part of division
 		for (u32 i = 0; i < tree_count; i++) {
 			s16 x = myrand_range(p2d_min.X, p2d_max.X);
@@ -806,10 +835,18 @@ void MapgenV6::placeTrees() {
 					continue;
 			}
 			p.Y++;
+			
 			// Make a tree
-			treegen::make_tree(*vm, p, false, ndef, myrand());
+			if (is_jungle) {
+				treegen::make_jungletree(*vm, p, ndef, myrand());
+			} else {
+				bool is_apple_tree = (myrand_range(0, 3) == 0) &&
+										getHaveAppleTree(v2s16(x, z));
+				treegen::make_tree(*vm, p, is_apple_tree, ndef, myrand());
+			}
 		}
 	}
+	//printf("placeTrees: %dms\n", t.stop());
 }
 
 
@@ -839,6 +876,24 @@ void MapgenV6::growGrass() {
 		if (n->getContent() == c_dirt && surface_y >= water_level - 20)
 			n->setContent(c_dirt_with_grass);
 	}
+}
+
+void MapgenV6::defineCave(Cave &cave, PseudoRandom ps,
+						 v3s16 node_min, bool large_cave) {
+		cave.min_tunnel_diameter = 2;
+		cave.max_tunnel_diameter = ps.range(2,6);
+		cave.dswitchint = ps.range(1,14);
+		cave.flooded = true; //large_cave && ps.range(0,4);
+		if(large_cave){
+			cave.part_max_length_rs = ps.range(2,4);
+			cave.tunnel_routepoints = ps.range(5, ps.range(15,30));
+			cave.min_tunnel_diameter = 5;
+			cave.max_tunnel_diameter = ps.range(7, ps.range(8,24));
+		} else {
+			cave.part_max_length_rs = ps.range(2,9);
+			cave.tunnel_routepoints = ps.range(10, ps.range(15,30));
+		}
+		cave.large_cave_is_flat = (ps.range(0,1) == 0);
 }
 
 
@@ -874,21 +929,9 @@ void MapgenV6::generateCaves(int max_stone_y) {
 			break;*/
 
 		bool large_cave = (jj >= caves_count);
-		s16 min_tunnel_diameter = 2;
-		s16 max_tunnel_diameter = ps.range(2,6);
-		int dswitchint = ps.range(1,14);
-		u16 tunnel_routepoints = 0;
-		int part_max_length_rs = 0;
-		if(large_cave){
-			part_max_length_rs = ps.range(2,4);
-			tunnel_routepoints = ps.range(5, ps.range(15,30));
-			min_tunnel_diameter = 5;
-			max_tunnel_diameter = ps.range(7, ps.range(8,24));
-		} else {
-			part_max_length_rs = ps.range(2,9);
-			tunnel_routepoints = ps.range(10, ps.range(15,30));
-		}
-		bool large_cave_is_flat = (ps.range(0,1) == 0);
+
+		Cave cave;
+		defineCave(cave, ps, node_min, large_cave);
 
 		v3f main_direction(0,0,0);
 
@@ -901,13 +944,13 @@ void MapgenV6::generateCaves(int max_stone_y) {
 		// Allow a bit more
 		//(this should be more than the maximum radius of the tunnel)
 		s16 insure = 10;
-		s16 more = max_spread_amount - max_tunnel_diameter / 2 - insure;
+		s16 more = max_spread_amount - cave.max_tunnel_diameter / 2 - insure;
 		ar += v3s16(1,0,1) * more * 2;
 		of -= v3s16(1,0,1) * more;
 
 		s16 route_y_min = 0;
 		// Allow half a diameter + 7 over stone surface
-		s16 route_y_max = -of.Y + max_stone_y + max_tunnel_diameter/2 + 7;
+		s16 route_y_max = -of.Y + max_stone_y + cave.max_tunnel_diameter/2 + 7;
 
 		// Limit maximum to area
 		route_y_max = rangelim(route_y_max, 0, ar.Y-1);
@@ -917,10 +960,10 @@ void MapgenV6::generateCaves(int max_stone_y) {
 			s16 min = 0;
 			if(node_min.Y < water_level && node_max.Y > water_level)
 			{
-				min = water_level - max_tunnel_diameter/3 - of.Y;
-				route_y_max = water_level + max_tunnel_diameter/3 - of.Y;
+				min = water_level - cave.max_tunnel_diameter/3 - of.Y;
+				route_y_max = water_level + cave.max_tunnel_diameter/3 - of.Y;
 			}
-			route_y_min = ps.range(min, min + max_tunnel_diameter);
+			route_y_min = ps.range(min, min + cave.max_tunnel_diameter);
 			route_y_min = rangelim(route_y_min, 0, route_y_max);
 		}
 
@@ -948,9 +991,9 @@ void MapgenV6::generateCaves(int max_stone_y) {
 			Generate some tunnel starting from orp
 		*/
 
-		for(u16 j=0; j<tunnel_routepoints; j++)
+		for(u16 j=0; j<cave.tunnel_routepoints; j++)
 		{
-			if(j%dswitchint==0 && large_cave == false)
+			if(j%cave.dswitchint==0 && large_cave == false)
 			{
 				main_direction = v3f(
 					((float)(ps.next()%20)-(float)10)/10,
@@ -961,8 +1004,8 @@ void MapgenV6::generateCaves(int max_stone_y) {
 			}
 
 			// Randomize size
-			s16 min_d = min_tunnel_diameter;
-			s16 max_d = max_tunnel_diameter;
+			s16 min_d = cave.min_tunnel_diameter;
+			s16 max_d = cave.max_tunnel_diameter;
 			s16 rs = ps.range(min_d, max_d);
 
 			// Every second section is rough
@@ -972,17 +1015,17 @@ void MapgenV6::generateCaves(int max_stone_y) {
 			if(large_cave)
 			{
 				maxlen = v3s16(
-					rs*part_max_length_rs,
-					rs*part_max_length_rs/2,
-					rs*part_max_length_rs
+					rs*cave.part_max_length_rs,
+					rs*cave.part_max_length_rs/2,
+					rs*cave.part_max_length_rs
 				);
 			}
 			else
 			{
 				maxlen = v3s16(
-					rs*part_max_length_rs,
-					ps.range(1, rs*part_max_length_rs),
-					rs*part_max_length_rs
+					rs*cave.part_max_length_rs,
+					ps.range(1, rs*cave.part_max_length_rs),
+					rs*cave.part_max_length_rs
 				);
 			}
 
@@ -1054,7 +1097,7 @@ void MapgenV6::generateCaves(int max_stone_y) {
 							/*// Make better floors in small caves
 							if(y0 <= -rs/2 && rs<=7)
 								continue;*/
-							if (large_cave_is_flat) {
+							if (cave.large_cave_is_flat) {
 								// Make large caves not so tall
 								if (rs > 7 && abs(y0) >= rs/3)
 									continue;
@@ -1072,13 +1115,13 @@ void MapgenV6::generateCaves(int max_stone_y) {
 							u32 i = vm->m_area.index(p);
 
 							if(large_cave) {
-								if (full_node_min.Y < water_level &&
+								if (cave.flooded && full_node_min.Y < water_level &&
 									full_node_max.Y > water_level) {
 									if (p.Y <= water_level)
 										vm->m_data[i] = waternode;
 									else
 										vm->m_data[i] = airnode;
-								} else if (full_node_max.Y < water_level) {
+								} else if (cave.flooded && full_node_max.Y < water_level) {
 									if (p.Y < startp.Y - 2)
 										vm->m_data[i] = lavanode;
 									else

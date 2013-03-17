@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define MG_TREES         0x01
 #define MG_CAVES         0x02
 #define MG_DUNGEONS      0x04
-#define MGV6_FORESTS     0x08
+#define MGV6_JUNGLES     0x08
 #define MGV6_BIOME_BLEND 0x10
 #define MG_FLAT          0x20
 
@@ -46,6 +46,7 @@ class ManualMapVoxelManipulator;
 class VoxelManipulator;
 class INodeDefManager;
 class BlockMakeData;
+class VoxelArea;
 
 struct MapgenParams {
 	std::string mg_name;
@@ -76,7 +77,10 @@ public:
 	INodeDefManager *ndef;
 
 	void updateLiquid(UniqueQueue<v3s16> *trans_liquid, v3s16 nmin, v3s16 nmax);
+	void setLighting(v3s16 nmin, v3s16 nmax, u8 light);
+	void lightSpread(VoxelArea &a, v3s16 p, u8 light);
 	void updateLighting(v3s16 nmin, v3s16 nmax);
+	void updateLightingOld(v3s16 nmin, v3s16 nmax);
 
 	virtual void makeChunk(BlockMakeData *data) {};
 	virtual int getGroundLevelAtPoint(v2s16 p) = 0;

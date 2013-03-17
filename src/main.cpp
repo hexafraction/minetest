@@ -1350,6 +1350,14 @@ int main(int argc, char *argv[])
 		driverType = video::EDT_DIRECT3D9;
 	else if(driverstring == "opengl")
 		driverType = video::EDT_OPENGL;
+#ifdef _IRR_COMPILE_WITH_OGLES1_
+	else if(driverstring == "ogles1")
+		driverType = video::EDT_OGLES1;
+#endif
+#ifdef _IRR_COMPILE_WITH_OGLES2_
+	else if(driverstring == "ogles2")
+		driverType = video::EDT_OGLES2;
+#endif
 	else
 	{
 		errorstream<<"WARNING: Invalid video_driver specified; defaulting "
@@ -1589,7 +1597,7 @@ int main(int argc, char *argv[])
 				if(skip_main_menu == false)
 				{
 					video::IVideoDriver* driver = device->getVideoDriver();
-					
+					float fps_max = g_settings->getFloat("fps_max");
 					infostream<<"Waiting for other menus"<<std::endl;
 					while(device->run() && kill == false)
 					{
@@ -1682,8 +1690,28 @@ int main(int argc, char *argv[])
 						
 						// On some computers framerate doesn't seem to be
 						// automatically limited
-						if (!cloud_menu_background)
+						if (cloud_menu_background) {
+							// Time of frame without fps limit
+							float busytime;
+							u32 busytime_u32;
+							// not using getRealTime is necessary for wine
+							u32 time = device->getTimer()->getTime();
+							if(time > lasttime)
+								busytime_u32 = time - lasttime;
+							else
+								busytime_u32 = 0;
+							busytime = busytime_u32 / 1000.0;
+
+							// FPS limiter
+							u32 frametime_min = 1000./fps_max;
+			
+							if(busytime_u32 < frametime_min) {
+								u32 sleeptime = frametime_min - busytime_u32;
+								device->sleep(sleeptime);
+							}
+						} else {
 							sleep_ms(25);
+						}
 					}
 					
 					infostream<<"Dropping main menu"<<std::endl;
