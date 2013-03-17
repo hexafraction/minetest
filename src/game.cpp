@@ -2109,7 +2109,7 @@ void the_game(
 					break;
 				}
 				else if(event.type == CE_PLAYER_DAMAGE &&
-						client.getHP() != 0)
+						client.getHP() != 0&&false)
 				{
 					//u16 damage = event.player_damage.amount;
 					//infostream<<"Player damage: "<<damage<<std::endl;
@@ -2128,6 +2128,8 @@ void the_game(
 				}
 				else if(event.type == CE_DEATHSCREEN)
 				{
+					if(false)
+					{
 					if(respawn_menu_active)
 						continue;
 
@@ -2158,6 +2160,7 @@ void the_game(
 					/*LocalPlayer* player = client.getLocalPlayer();
 					player->setPosition(player->getPosition() + v3f(0,-BS,0));
 					camera.update(player, busytime, screensize);*/
+					}
 				}
 				else if (event.type == CE_SHOW_FORMSPEC)
 				{
@@ -3148,7 +3151,7 @@ void the_game(
 		/*
 			Damage flash
 		*/
-		if(damage_flash > 0.0)
+		if(false)
 		{
 			video::SColor color(std::min(damage_flash, 180.0f),180,0,0);
 			driver->draw2DRectangle(color,
@@ -3163,8 +3166,7 @@ void the_game(
 		*/
 		if(player->hurt_tilt_timer > 0.0)
 		{
-			player->hurt_tilt_timer -= dtime*5;
-			if(player->hurt_tilt_timer < 0)
+			
 				player->hurt_tilt_strength = 0;
 		}
 
