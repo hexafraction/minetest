@@ -2109,7 +2109,7 @@ void the_game(
 					break;
 				}
 				else if(event.type == CE_PLAYER_DAMAGE &&
-						client.getHP() != 0&&false)
+						client.getHP() != 0)
 				{
 					//u16 damage = event.player_damage.amount;
 					//infostream<<"Player damage: "<<damage<<std::endl;
@@ -2117,8 +2117,8 @@ void the_game(
 					damage_flash += 100.0;
 					damage_flash += 8.0 * event.player_damage.amount;
 
-					player->hurt_tilt_timer = 1.5;
-					player->hurt_tilt_strength = event.player_damage.amount/2;
+					player->hurt_tilt_timer = 0;
+					player->hurt_tilt_strength = 0;
 					player->hurt_tilt_strength = rangelim(player->hurt_tilt_strength, 2.0, 10.0);
 				}
 				else if(event.type == CE_PLAYER_FORCE_MOVE)
