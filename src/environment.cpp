@@ -2125,7 +2125,7 @@ void ClientEnvironment::step(float dtime)
 			const ContentFeatures &f = m_gamedef->ndef()->
 					get(m_map->getNodeNoEx(info.node_p));
 			// Determine fall damage multiplier
-			int addp = itemgroup_get(f.groups, "fall_damage_add_percent");
+			int addp = itemgroup_get(f.groups, "fall_add_percent");
 			pre_factor = 1.0 + (float)addp/100.0;
 		}
 		float speed = pre_factor * speed_diff.getLength();
@@ -2134,7 +2134,7 @@ void ClientEnvironment::step(float dtime)
 			f32 damage_f = (speed - tolerance)/BS * post_factor;
 			u16 damage = (u16)(damage_f+0.5);
 			if(damage != 0)
-				damageLocalPlayer(damage, true);
+				//damageLocalPlayer(damage, true);
 		}
 	}
 	
@@ -2154,16 +2154,16 @@ void ClientEnvironment::step(float dtime)
 		MapNode n3 = m_map->getNodeNoEx(p2);
 
 		u32 damage_per_second = 0;
-		damage_per_second = MYMAX(damage_per_second,
-				m_gamedef->ndef()->get(n1).damage_per_second);
-		damage_per_second = MYMAX(damage_per_second,
-				m_gamedef->ndef()->get(n2).damage_per_second);
-		damage_per_second = MYMAX(damage_per_second,
-				m_gamedef->ndef()->get(n3).damage_per_second);
+	//damage_per_second = MYMAX(damage_per_second,
+		//		m_gamedef->ndef()->get(n1).damage_per_second);
+	//	damage_per_second = MYMAX(damage_per_second,
+	//			m_gamedef->ndef()->get(n2).damage_per_second);
+	/	damage_per_second = MYMAX(damage_per_second,
+	//			m_gamedef->ndef()->get(n3).damage_per_second);
 		
 		if(damage_per_second != 0)
 		{
-			damageLocalPlayer(damage_per_second, true);
+		//	damageLocalPlayer(damage_per_second, true);
 		}
 	}
 	
@@ -2407,6 +2407,9 @@ void ClientEnvironment::processActiveObjectMessage(u16 id,
 
 void ClientEnvironment::damageLocalPlayer(u8 damage, bool handle_hp)
 {
+	if(false){
+		
+	}
 	LocalPlayer *lplayer = getLocalPlayer();
 	assert(lplayer);
 	
@@ -2422,6 +2425,7 @@ void ClientEnvironment::damageLocalPlayer(u8 damage, bool handle_hp)
 	event.player_damage.amount = damage;
 	event.player_damage.send_to_server = handle_hp;
 	m_client_event_queue.push_back(event);
+}
 }
 
 /*
