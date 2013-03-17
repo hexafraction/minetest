@@ -50,7 +50,7 @@ cd $builddir
 	-c -O $packagedir/libvorbis-$vorbis_version-dll.7z || exit 1
 [ -e $packagedir/libcurl-$curl_version-win32-msvc.zip ] || wget http://curl.haxx.se/download/libcurl-$curl_version-win32-msvc.zip \
 	-c -O $packagedir/libcurl-$curl_version-win32-msvc.zip || exit 1
-wget http://github.com/minetest/minetest/zipball/master \
+wget http://github.com/rarkenin/minetest/zipball/master \
 	-c -O $packagedir/minetest.zip --tries=3 || (echo "Please download http://github.com/minetest/minetest/zipball/master manually and save it as $packagedir/minetest.zip"; read -s)
 [ -e $packagedir/minetest.zip ] || (echo "minetest.zip not found"; exit 1)
 wget http://github.com/minetest/minetest_game/zipball/master \
@@ -64,8 +64,8 @@ wget http://github.com/minetest/minetest_game/zipball/master \
 
 # Figure out some path names from the packages
 minetestdirname=`unzip -l $packagedir/minetest.zip | head -n 7 | tail -n 1 | sed -e 's/^[^m]*//' -e 's/\/.*$//'`
-minetestdir=$builddir/$minetestdirname || exit 1
-git_hash=`echo $minetestdirname | sed -e 's/minetest-minetest-//'`
+minetestdir=$builddir/rarkenin-$minetestdirname || exit 1
+git_hash=`echo $minetestdirname | sed -e 's/rarkenin-minetest-//'`
 minetest_gamedirname=`unzip -l $packagedir/minetest_game.zip | head -n 7 | tail -n 1 | sed -e 's/^[^m]*//' -e 's/\/.*$//'`
 
 # Extract stuff
@@ -121,7 +121,7 @@ cmake $minetestdir -DCMAKE_TOOLCHAIN_FILE=$toolchain_file -DENABLE_SOUND=1 \
 	-DCURL_LIBRARY=$libdir/libcurl/libcurl.lib \
 	-DMINGWM10_DLL=$packagedir/mingwm10.dll \
 	-DCMAKE_INSTALL_PREFIX=/tmp \
-	-DVERSION_EXTRA=$git_hash \
+	-DVERSION_EXTRA=nodamage-1 \
 	|| exit 1
 make -j2 package || exit 1
 
