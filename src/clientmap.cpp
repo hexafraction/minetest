@@ -867,15 +867,15 @@ void ClientMap::renderPostFx()
 	video::SColor post_effect_color = features.post_effect_color;
 	if(features.solidness == 2 && !(g_settings->getBool("noclip") && m_gamedef->checkLocalPrivilege("noclip")))
 	{
-		post_effect_color = video::SColor(255, 0, 0, 0);
+	//	post_effect_color = video::SColor(255, 0, 0, 0);
 	}
 	if (post_effect_color.getAlpha() != 0)
 	{
 		// Draw a full-screen rectangle
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
-		v2u32 ss = driver->getScreenSize();
-		core::rect<s32> rect(0,0, ss.X, ss.Y);
-		driver->draw2DRectangle(post_effect_color, rect);
+	//	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	///	v2u32 ss = driver->getScreenSize();
+	//	core::rect<s32> rect(0,0, ss.X, ss.Y);
+		//driver->draw2DRectangle(post_effect_color, rect);
 	}
 }
 
