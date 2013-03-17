@@ -2133,7 +2133,7 @@ void ClientEnvironment::step(float dtime)
 		{
 			f32 damage_f = (speed - tolerance)/BS * post_factor;
 			u16 damage = (u16)(damage_f+0.5);
-			if(damage != 0)
+			//if(damage != 0)
 				//damageLocalPlayer(damage, true);
 		}
 	}
