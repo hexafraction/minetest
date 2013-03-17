@@ -1,7 +1,7 @@
 #!/bin/bash
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ $# -ne 1 ]; then
-	echo "Usage: $0 <build directory>"
+if [ $# -ne 2 ]; then
+	echo "Usage: $0 <build directory> <name suffix>"
 	exit 1
 fi
 builddir=$1
@@ -121,9 +121,9 @@ cmake $minetestdir -DCMAKE_TOOLCHAIN_FILE=$toolchain_file -DENABLE_SOUND=1 \
 	-DCURL_LIBRARY=$libdir/libcurl/libcurl.lib \
 	-DMINGWM10_DLL=$packagedir/mingwm10.dll \
 	-DCMAKE_INSTALL_PREFIX=/tmp \
-	-DVERSION_EXTRA=nodamage-1 \
+	-DVERSION_EXTRA=rark-`date +%F`$2 \
 	|| exit 1
-make -j2 package || exit 1
+nice -n 15 make -j2 package || exit 1
 
 #pubdir=/home/celeron55/public_html/random/`date +%Y-%m` || exit 1
 #mkdir -p $pubdir || exit 1
