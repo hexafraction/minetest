@@ -2158,7 +2158,7 @@ void ClientEnvironment::step(float dtime)
 		//		m_gamedef->ndef()->get(n1).damage_per_second);
 	//	damage_per_second = MYMAX(damage_per_second,
 	//			m_gamedef->ndef()->get(n2).damage_per_second);
-	/	damage_per_second = MYMAX(damage_per_second,
+	//	damage_per_second = MYMAX(damage_per_second,
 	//			m_gamedef->ndef()->get(n3).damage_per_second);
 		
 		if(damage_per_second != 0)
