@@ -240,6 +240,6 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("mgindev_np_terrain_higher", "20, 16, (500, 500, 500), 85039, 5, 0.6, 10");
 	settings->setDefault("mgindev_np_steepness",      "0.85, 0.5, (125, 125, 125), -932, 5, 0.7, 10");
 	settings->setDefault("mgindev_np_mud",            "4, 2, (200, 200, 200), 91013, 3, 0.55, 1");
-	settings->setDefault("gravity_acceleration_client", "9.86")
+	settings->setDefault("gravity_acceleration_client", "9.86");
 }
 
