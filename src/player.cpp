@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 #include "player.h"
-#include "main.cpp" //g_settings
+//#include "main.cpp" //g_settings
 #include "constants.h"
 #include "gamedef.h"
 #include "connection.h" // PEER_ID_INEXISTENT
