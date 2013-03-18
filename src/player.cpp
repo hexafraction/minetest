@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 #include "player.h"
+#include "main.cpp" //g_settings
 #include "constants.h"
 #include "gamedef.h"
 #include "connection.h" // PEER_ID_INEXISTENT
@@ -63,14 +64,14 @@ Player::Player(IGameDef *gamedef):
 	movement_acceleration_air = 2 * BS;
 	movement_acceleration_fast = 10 * BS;
 	movement_speed_walk = 4 * BS;
-	movement_speed_crouch = 1.35 * BS;
+	movement_speed_crouch = 6 * BS;
 	movement_speed_fast = 8 * BS;
 	movement_speed_climb = 2 * BS;
 	movement_speed_jump = 6.5 * BS;
 	movement_liquid_fluidity = 1 * BS;
 	movement_liquid_fluidity_smooth = 0.5 * BS;
 	movement_liquid_sink = 10 * BS;
-	movement_gravity = 9.81 * BS;
+	movement_gravity = g_settings->getFloat("gravity_acceleration_client") * BS;
 }
 
 Player::~Player()
