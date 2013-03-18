@@ -71,7 +71,7 @@ Player::Player(IGameDef *gamedef):
 	movement_liquid_fluidity = 1 * BS;
 	movement_liquid_fluidity_smooth = 0.5 * BS;
 	movement_liquid_sink = 10 * BS;
-	movement_gravity = g_settings->getFloat("gravity_acceleration_client") * BS;
+	movement_gravity = 9.81 * BS;
 }
 
 Player::~Player()
