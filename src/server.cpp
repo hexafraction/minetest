@@ -58,6 +58,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/mathconstants.h"
 #include "rollback.h"
 #include "util/serialize.h"
+#include "defaultsettings.h"
 
 void * ServerThread::Thread()
 {
@@ -687,6 +688,13 @@ Server::Server(
 	infostream<<"- config: "<<m_path_config<<std::endl;
 	infostream<<"- game:   "<<m_gamespec.path<<std::endl;
 
+	// Initialize default settings and override defaults with those provided
+	// by the game
+	set_default_settings(g_settings);
+	Settings gamedefaults;
+	getGameMinetestConfig(gamespec.path, gamedefaults);
+	override_default_settings(g_settings, &gamedefaults);
+
 	// Create biome definition manager
 	m_biomedef = new BiomeDefManager(this);
 
@@ -736,10 +744,10 @@ Server::Server(
 	}
 	// complain about mods declared to be loaded, but not found
 	for(std::vector<ModSpec>::iterator it = m_mods.begin();
-		it != m_mods.end(); ++it)
+			it != m_mods.end(); ++it)
 		load_mod_names.erase((*it).name);
 	for(std::list<ModSpec>::iterator it = unsatisfied_mods.begin();
-		it != unsatisfied_mods.end(); ++it)
+			it != unsatisfied_mods.end(); ++it)
 		load_mod_names.erase((*it).name);
 	if(!load_mod_names.empty())
 	{		
