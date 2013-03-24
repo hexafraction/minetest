@@ -625,6 +625,7 @@ minetest.register_chatcommand("kick", {
 		end
 	end,
 	})
+
 minetest.register_chatcommand("ban", {
 	params = "<name>",
 	description = "ban IP of player",
