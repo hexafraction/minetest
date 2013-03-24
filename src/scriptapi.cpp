@@ -32,7 +32,8 @@ extern "C" {
 #include "biome.h"
 #include "script.h"
 #include "rollback.h"
-
+#include "connection.h"
+//#include "connection.cpp"
 #include "scriptapi_types.h"
 #include "scriptapi_env.h"
 #include "scriptapi_nodetimer.h"
@@ -44,6 +45,15 @@ extern "C" {
 #include "scriptapi_item.h"
 #include "scriptapi_content.h"
 #include "scriptapi_craft.h"
+
+/************************/
+/*Forward declarations  */
+class Server;
+class Connection;
+//Connection Server::getConnectionObject(u16 peer_id);
+/************************/
+
+
 
 /*****************************************************************************/
 /* Mod related                                                               */
@@ -784,11 +794,16 @@ static int l_get_ban_description(lua_State *L)
 	lua_pushstring(L, get_server(L)->getBanDescription(std::string(ip_or_name)).c_str());
 	return 1;
 }
+
+
 // kick_player()
 static int l_kick_player(lua_State *L)
 {
 	const char * name = luaL_checkstring(L, 1);
+	const char * reason = luaL_checkstring(L, 2);
 	Player *player = get_env(L)->getPlayer(name);
+	Server *server = get_server(L);
+	con::Connection *m_con = get_server(L)->getConnectionObject();
 	if(player == NULL)
 	{
 		lua_pushboolean(L, false); // no such player
@@ -796,11 +811,10 @@ static int l_kick_player(lua_State *L)
 	}
 	try
 	{
-		server->notifyPlayer(name, narrow_to_wide("You have been kicked from the server"));
-		server->notifyPlayers(narrow_to_wide("*** "+name+" was kicked from the game."));
+		server->notifyPlayer(name, L"You have been kicked from the server for the following reason: " +narrow_to_wide(reason));
+		server->notifyPlayers(L"*** "+narrow_to_wide(name)+L" was kicked from the game for the following reason: "+narrow_to_wide(reason));
 		u16 peerId = get_env(L)->getPlayer(name)->peer_id;
-		Connection::RemovePeer(peerId);
-		
+			
 	}
 	catch(con::PeerNotFoundException) // unlikely
 	{

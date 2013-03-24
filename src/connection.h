@@ -316,6 +316,7 @@ private:
 	std::map<u16, IncomingSplitPacket*> m_buf;
 };
 
+
 class Connection;
 
 struct Channel

@@ -2124,7 +2124,9 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 				std::wstring message;
 				message += L"*** ";
 				message += name;
-				message += L" joined the game.";
+				message += L" joined the game from IP
+				message += addr_s;
+				message += L".";
 				BroadcastChatMessage(message);
 			}
 		}
@@ -2157,7 +2159,7 @@ void Server::ProcessData(u8 *data, u32 datasize, u16 peer_id)
 				os<<player->getName()<<" ";
 			}
 
-			actionstream<<player->getName()<<" joins game. List of players: "
+			actionstream<<player->getName()<<" joins game from IP "<<addr_s<<". List of players: "
 					<<os.str()<<std::endl;
 		}
 

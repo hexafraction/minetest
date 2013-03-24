@@ -27,8 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "util/string.h"
 #include "settings.h"
 
-namespace con
-{
+//namespace con
+//{
 
 static u16 readPeerId(u8 *packetdata)
 {
@@ -235,6 +235,7 @@ BufferedPacket ReliablePacketBuffer::popSeqnum(u16 seqnum)
 	--m_list_size;
 	return p;
 }
+
 void ReliablePacketBuffer::insert(BufferedPacket &p)
 {
 	assert(p.data.getSize() >= BASE_HEADER_SIZE+3);
@@ -1526,22 +1527,7 @@ SharedBuffer<u8> Connection::processPacket(Channel *channel,
 	throw BaseException("Error in Channel::ProcessPacket()");
 }
 
-bool Connection::deletePeer(u16 peer_id, bool timeout)
-{
-	if(m_peers.find(peer_id) == m_peers.end())
-		return false;
-	
-	Peer *peer = m_peers[peer_id];
 
-	// Create event
-	ConnectionEvent e;
-	e.peerRemoved(peer_id, timeout, peer->address);
-	putEvent(e);
-
-	delete m_peers[peer_id];
-	m_peers.erase(peer_id);
-	return true;
-}
 
 /* Interface */
 
@@ -1699,5 +1685,24 @@ std::string Connection::getDesc()
 	return std::string("con(")+itos(m_socket.GetHandle())+"/"+itos(m_peer_id)+")";
 }
 
-} // namespace
+public:
+
+public bool Connection::deletePeer(u16 peer_id, bool timeout)
+{
+	if(m_peers.find(peer_id) == m_peers.end())
+		return false;
+	
+	Peer *peer = m_peers[peer_id];
+
+	// Create event
+	ConnectionEvent e;
+	e.peerRemoved(peer_id, timeout, peer->address);
+	putEvent(e);
+
+	delete m_peers[peer_id];
+	m_peers.erase(peer_id);
+	return true;
+}
+
+//} // namespace
 

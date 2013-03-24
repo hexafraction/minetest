@@ -41,6 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <algorithm>
 
 #define PP(x) "("<<(x).X<<","<<(x).Y<<","<<(x).Z<<")"
+class Connection;
 
 struct LuaState;
 typedef struct lua_State lua_State;
@@ -508,6 +509,12 @@ public:
 	}
 
 	bool showFormspec(const char *name, const std::string &formspec, const std::string &formname);
+	
+	con::Connection* getConnectionObject(){
+		con::Connection *p_con;
+		p_con = &m_con;
+		return p_con;
+	}
 private:
 
 	// con::PeerHandler implementation.
