@@ -91,6 +91,8 @@ struct MapgenV6Params : public MapgenParams {
 
 class MapgenV6 : public Mapgen {
 public:
+	EmergeManager *emerge;
+
 	int ystride;
 	v3s16 csize;
 	u32 flags;
@@ -128,7 +130,7 @@ public:
 	content_t c_desert_sand;
 	content_t c_desert_stone;
 
-	MapgenV6(int mapgenid, MapgenV6Params *params);
+	MapgenV6(int mapgenid, MapgenV6Params *params, EmergeManager *emerge);
 	~MapgenV6();
 	
 	void makeChunk(BlockMakeData *data);
@@ -167,11 +169,12 @@ public:
 	virtual void defineCave(Cave &cave, PseudoRandom ps,
 							v3s16 node_min, bool large_cave);
 	void generateCaves(int max_stone_y);
+	virtual void generateSomething() {}; //for next mapgen
 };
 
 struct MapgenFactoryV6 : public MapgenFactory {
 	Mapgen *createMapgen(int mgid, MapgenParams *params, EmergeManager *emerge) {
-		return new MapgenV6(mgid, (MapgenV6Params *)params);
+		return new MapgenV6(mgid, (MapgenV6Params *)params, emerge);
 	};
 	
 	MapgenParams *createMapgenParams() {

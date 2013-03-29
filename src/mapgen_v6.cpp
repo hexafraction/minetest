@@ -64,9 +64,10 @@ NoiseParams nparams_v6_def_apple_trees =
 ///////////////////////////////////////////////////////////////////////////////
 
 
-MapgenV6::MapgenV6(int mapgenid, MapgenV6Params *params) {
+MapgenV6::MapgenV6(int mapgenid, MapgenV6Params *params, EmergeManager *emerge) {
 	this->generating  = false;
 	this->id       = mapgenid;
+	this->emerge   = emerge;
 
 	this->seed     = (int)params->seed;
 	this->water_level = params->water_level;
@@ -422,6 +423,8 @@ void MapgenV6::makeChunk(BlockMakeData *data) {
 	// Generate general ground level to full area
 	stone_surface_max_y = generateGround();
 
+	generateSomething();
+
 	const s16 max_spread_amount = MAP_BLOCKSIZE;
 	// Limit dirt flow area by 1 because mud is flown into neighbors.
 	s16 mudflow_minpos = -max_spread_amount + 1;
@@ -461,6 +464,12 @@ void MapgenV6::makeChunk(BlockMakeData *data) {
 	if (flags & MG_TREES)
 		placeTreesAndJungleGrass();
 
+	// Generate the registered ores
+	for (unsigned int i = 0; i != emerge->ores.size(); i++) {
+		Ore *ore = emerge->ores[i];
+		ore->generate(this, blockseed + i, node_min, node_max);
+	}
+
 	// Calculate lighting
 	calcLighting(node_min, node_max);
 	
@@ -492,14 +501,13 @@ void MapgenV6::calculateNoise() {
 		noise_height_select->perlinMap2D(
 			x + 0.5 * noise_height_select->np->spread.X,
 			z + 0.5 * noise_height_select->np->spread.Z);
-	}
-		
-	if (!(flags & MG_FLAT)) {
+
 		noise_mud->perlinMap2D(
 			x + 0.5 * noise_mud->np->spread.X,
 			z + 0.5 * noise_mud->np->spread.Z);
 		noise_mud->transformNoiseMap();
 	}
+
 	noise_beach->perlinMap2D(
 		x + 0.2 * noise_beach->np->spread.X,
 		z + 0.7 * noise_beach->np->spread.Z);

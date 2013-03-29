@@ -219,6 +219,7 @@ set(common_SRCS
 	scriptapi_object.cpp
 	scriptapi_nodemeta.cpp
 	scriptapi_inventory.cpp
+	scriptapi_particles.cpp
 	scriptapi.cpp
 	script.cpp
 	log.cpp
@@ -227,6 +228,7 @@ set(common_SRCS
 	mapgen.cpp
 	mapgen_v6.cpp
 	mapgen_indev.cpp
+	mapgen_singlenode.cpp
 	treegen.cpp
 	dungeongen.cpp
 	content_nodemeta.cpp

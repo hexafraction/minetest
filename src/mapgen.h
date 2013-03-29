@@ -45,7 +45,7 @@ class MapBlock;
 class ManualMapVoxelManipulator;
 class VoxelManipulator;
 class INodeDefManager;
-class BlockMakeData;
+struct BlockMakeData;
 class VoxelArea;
 
 struct MapgenParams {
@@ -96,6 +96,49 @@ struct MapgenFactory {
 								 EmergeManager *emerge) = 0;
 	virtual MapgenParams *createMapgenParams() = 0;
 };
+
+enum OreType {
+	ORE_SCATTER,
+	ORE_SHEET,
+	ORE_CLAYLIKE
+};
+
+class Ore {
+public:
+	std::string ore_name;
+	std::string wherein_name;
+
+	content_t ore;
+	content_t wherein;  // the node to be replaced
+	s16 clust_scarcity; //
+	s16 clust_num_ores; // how many ore nodes are in a chunk
+	s16 clust_size;     // how large (in nodes) a chunk of ore is
+	s16 height_min;
+	s16 height_max;
+	float nthresh;      // threshhold for noise at which an ore is placed 
+	NoiseParams *np;    // noise for distribution of clusters (NULL for uniform scattering)
+	Noise *noise;
+	
+	Ore() {
+		ore     = CONTENT_IGNORE;
+		wherein = CONTENT_IGNORE;
+		np      = NULL;
+		noise   = NULL;
+	}
+	
+	void resolveNodeNames(INodeDefManager *ndef);
+	virtual void generate(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax) = 0;
+};
+
+class OreScatter : public Ore {
+	 void generate(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
+};
+
+class OreSheet : public Ore {
+	void generate(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
+};
+
+Ore *createOre(OreType type);
 
 #endif
 
