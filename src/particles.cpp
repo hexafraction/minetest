@@ -72,6 +72,7 @@ Particle::Particle(
 	m_material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	m_material.setTexture(0, ap.atlas);
 	m_ap = ap;
+	m_light = 0;
 
 
 	// Particle related
@@ -122,6 +123,23 @@ void Particle::render()
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 	driver->setMaterial(m_material);
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+	video::SColor c(255, m_light, m_light, m_light);
+
+	video::S3DVertex vertices[4] =
+	{
+		video::S3DVertex(-m_size/2,-m_size/2,0, 0,0,0, c, m_ap.x0(), m_ap.y1()),
+		video::S3DVertex(m_size/2,-m_size/2,0, 0,0,0, c, m_ap.x1(), m_ap.y1()),
+		video::S3DVertex(m_size/2,m_size/2,0, 0,0,0, c, m_ap.x1(), m_ap.y0()),
+		video::S3DVertex(-m_size/2,m_size/2,0, 0,0,0, c ,m_ap.x0(), m_ap.y0()),
+	};
+
+	for(u16 i=0; i<4; i++)
+	{
+		vertices[i].Pos.rotateYZBy(m_player->getPitch());
+		vertices[i].Pos.rotateXZBy(m_player->getYaw());
+		m_box.addInternalPoint(vertices[i].Pos);
+		vertices[i].Pos += m_pos*BS;
+	}
 
 	u16 indices[] = {0,1,2, 2,3,0};
 	driver->drawVertexPrimitiveList(m_vertices, 4,
@@ -131,6 +149,17 @@ void Particle::render()
 
 void Particle::step(float dtime, ClientEnvironment &env)
 {
+	core::aabbox3d<f32> box = m_collisionbox;
+	v3f p_pos = m_pos*BS;
+	v3f p_velocity = m_velocity*BS;
+	v3f p_acceleration = m_acceleration*BS;
+	collisionMoveSimple(&env.getClientMap(), m_gamedef,
+		BS*0.5, box,
+		0, dtime,
+		p_pos, p_velocity, p_acceleration);
+	m_pos = p_pos/BS;
+	m_velocity = p_velocity/BS;
+	m_acceleration = p_acceleration/BS;
 	m_time += dtime;
 	if (m_collisiondetection)
 	{
@@ -138,7 +167,7 @@ void Particle::step(float dtime, ClientEnvironment &env)
 		v3f p_pos = m_pos*BS;
 		v3f p_velocity = m_velocity*BS;
 		v3f p_acceleration = m_acceleration*BS;
-		collisionMoveSimple(&env, m_gamedef,
+		collisionMoveSimple(&env.getClientMap(), m_gamedef,
 			BS*0.5, box,
 			0, dtime,
 			p_pos, p_velocity, p_acceleration);
